@@ -1,5 +1,4 @@
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-
+<?php
 /*
 Plugin Name: Safe Link Checker
 Description: Automatically convert external links to a safe check URL.
@@ -9,6 +8,8 @@ Author URI: https://yourwebsite.com
 Plugin URI: https://yourwebsite.com/safe-link-checker
 License: GPL
 */
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class SafeLinkCheckerPlugin {
 
@@ -119,3 +120,4 @@ class SafeLinkCheckerPlugin {
 
 // Create an instance of the SafeLinkCheckerPlugin class
 $safe_link_checker_plugin = new SafeLinkCheckerPlugin();
+?>

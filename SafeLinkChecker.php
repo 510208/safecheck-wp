@@ -180,4 +180,29 @@ class SafeLinkCheckerPlugin {
 
 // Create an instance of the SafeLinkCheckerPlugin class
 $safe_link_checker_plugin = new SafeLinkCheckerPlugin();
+
+public function __construct() {
+    // Check if it's the plugin activation hook
+    if (isset($_GET['activate']) && $_GET['activate'] === 'true') {
+        // Redirect to the welcome page
+        wp_redirect(plugin_dir_url(__FILE__) . 'Welcome/hello.php');
+        exit();
+    }
+
+    // Add settings menu
+    add_action('admin_menu', array($this, 'add_settings_menu'));
+
+    // Register settings
+    add_action('admin_init', array($this, 'register_plugin_settings'));
+
+    // Add content filter
+    add_filter('the_content', array($this, 'filter_content'));
+
+    // Hook to save settings
+    add_action('admin_post_save_safe_link_checker_settings', array($this, 'save_plugin_settings'));
+
+    // Hook to deactivate the plugin
+    register_deactivation_hook(__FILE__, array($this, 'deactivate_plugin'));
+}
+
 ?>

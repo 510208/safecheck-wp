@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Safe Link Checker
+Plugin Name: Safe Link Converter
 Description: Automatically convert external links to a safe check URL.
-Version: 0.4
-Author: Your Name
+Version: 0.4.4
+Author: 510208
 Author URI: https://pgsoft.lionfree.net
 Plugin URI: https://github.com/510208/safecheck-wp
 License: GNU General Public License v3
@@ -28,6 +28,9 @@ class SafeLinkCheckerPlugin {
         
         // Hook to deactivate the plugin
         register_deactivation_hook(__FILE__, array($this, 'deactivate_plugin'));
+        
+        // Display admin notice
+        add_action('admin_notices', array($this, 'display_admin_notice'));
     }
 
     // Add settings menu
@@ -56,6 +59,7 @@ class SafeLinkCheckerPlugin {
                 do_settings_sections('safe-link-checker-settings');
                 submit_button();
                 ?>
+                <a class="button button-primary" href="https://pgsoft.lionfree.net">造訪作者網站</a>
             </form>
         </div>
         <?php
@@ -176,33 +180,38 @@ class SafeLinkCheckerPlugin {
         // Remove the content filter added by the plugin
         remove_filter('the_content', array($this, 'filter_content'));
     }
+
+    public function display_admin_notice() {
+        // Check if the option is set
+        $notice_shown = get_option('safe_link_checker_notice_shown', false);
+    
+        if (!$notice_shown) {
+            // Localize the message for translation
+            $message = sprintf(
+                __('感谢您的安装！此插件的设置界面位于左侧菜单中的「Safe Link Checker」。请在设置页面中设置您的安全检查API接口的网址。请注意：在您移除此插件后，此插件所设置的所有外部链接检查网址将失效。谢谢。', 'your-text-domain'),
+                '<strong>Safe Link Checker</strong>'
+            );
+    
+            // Escape HTML and URL
+            $message = esc_html($message);
+            $url = esc_url(admin_url('admin.php?page=safe-link-checker-settings'));
+    
+            // Output the notice with a dismissible option
+            printf(
+                '<div class="notice notice-success is-dismissible"><p>%s</p><a href="%s" class="button-primary">%s</a></div>',
+                $message,
+                $url,
+                __('前往设置', 'your-text-domain')
+            );
+    
+            // Set the option to prevent the notice from showing again
+            update_option('safe_link_checker_notice_shown', true);
+        }
+    }
+    
 }
 
 // Create an instance of the SafeLinkCheckerPlugin class
 $safe_link_checker_plugin = new SafeLinkCheckerPlugin();
-
-public function __construct() {
-    // Check if it's the plugin activation hook
-    if (isset($_GET['activate']) && $_GET['activate'] === 'true') {
-        // Redirect to the welcome page
-        wp_redirect(plugin_dir_url(__FILE__) . 'Welcome/hello.php');
-        exit();
-    }
-
-    // Add settings menu
-    add_action('admin_menu', array($this, 'add_settings_menu'));
-
-    // Register settings
-    add_action('admin_init', array($this, 'register_plugin_settings'));
-
-    // Add content filter
-    add_filter('the_content', array($this, 'filter_content'));
-
-    // Hook to save settings
-    add_action('admin_post_save_safe_link_checker_settings', array($this, 'save_plugin_settings'));
-
-    // Hook to deactivate the plugin
-    register_deactivation_hook(__FILE__, array($this, 'deactivate_plugin'));
-}
 
 ?>

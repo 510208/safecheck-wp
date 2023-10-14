@@ -2,7 +2,7 @@
 /*
 Plugin Name: Safe Link Converter
 Description: Automatically convert external links to a safe check URL.
-Version: 0.4.4
+Version: 0.4.5
 Author: 510208
 Author URI: https://pgsoft.lionfree.net
 Plugin URI: https://github.com/510208/safecheck-wp
@@ -55,6 +55,9 @@ class SafeLinkCheckerPlugin {
             </p>
             <form method="post" action="options.php">
                 <?php
+                // 输出 nonce 字段
+                wp_nonce_field('safe_link_checker_settings', 'safe_link_checker_settings_nonce');
+
                 settings_fields('safe_link_checker_settings_group');
                 do_settings_sections('safe-link-checker-settings');
                 submit_button();
@@ -120,16 +123,24 @@ class SafeLinkCheckerPlugin {
         echo 'Configure your Safe Link Checker settings here.';
     }
 
-    // Validate and save settings fields
-    public function save_plugin_settings() {
-        if (isset($_POST['safe_link_checker_url'])) {
-            update_option('safe_link_checker_url', sanitize_text_field($_POST['safe_link_checker_url']));
+    public function save_plugin_settings(){
+        if(isset($_POST['safe_link_checker_url'])){
+            // Verify nonce
+            if (isset($_POST['safe_link_checker_settings_nonce']) && wp_verify_nonce($_POST['safe_link_checker_settings_nonce'], 'safe_link_checker_settings')) {
+                // Proceed with saving settings
+                update_option('safe_link_checker_url', sanitize_text_field($_POST['safe_link_checker_url']));
+            }
         }
-
-        if (isset($_POST['safe_link_checker_whitelist'])) {
-            update_option('safe_link_checker_whitelist', sanitize_text_field($_POST['safe_link_checker_whitelist']));
+    
+        if(isset($_POST['safe_link_checker_whitelist'])){
+            // Verify nonce
+            if (isset($_POST['safe_link_checker_settings_nonce']) && wp_verify_nonce($_POST['safe_link_checker_settings_nonce'], 'safe_link_checker_settings')) {
+                // Proceed with saving settings
+                update_option('safe_link_checker_whitelist', sanitize_text_field($_POST['safe_link_checker_whitelist']));
+            }
         }
     }
+    
 
     // Content filter to modify links before display
     public function filter_content($content) {
@@ -188,20 +199,20 @@ class SafeLinkCheckerPlugin {
         if (!$notice_shown) {
             // Localize the message for translation
             $message = sprintf(
-                __('感谢您的安装！此插件的设置界面位于左侧菜单中的「Safe Link Checker」。请在设置页面中设置您的安全检查API接口的网址。请注意：在您移除此插件后，此插件所设置的所有外部链接检查网址将失效。谢谢。', 'your-text-domain'),
+                __('感謝您的安裝！此外掛的設定介面位於左側選單中的「Safe Link Checker」。請在設定頁面中設定您的安全檢查API介面的網址。請注意：在您移除此外掛後，此外掛所設定的所有外部連結檢查網址將失效。謝謝。', 'your-text-domain'),
                 '<strong>Safe Link Checker</strong>'
             );
-    
-            // Escape HTML and URL
+            
+            // 進行 HTML 和 URL 轉義
             $message = esc_html($message);
             $url = esc_url(admin_url('admin.php?page=safe-link-checker-settings'));
-    
-            // Output the notice with a dismissible option
+            
+            // 顯示通知，並提供可關閉選項
             printf(
                 '<div class="notice notice-success is-dismissible"><p>%s</p><a href="%s" class="button-primary">%s</a></div>',
                 $message,
                 $url,
-                __('前往设置', 'your-text-domain')
+                __('前往設定', 'your-text-domain')
             );
     
             // Set the option to prevent the notice from showing again

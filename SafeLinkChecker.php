@@ -1,11 +1,12 @@
 <?php
 /*
-Plugin Name: Safe Link Converter
+Plugin Name: External Link Modifier Easy
 Description: Automatically convert external links to a safe check URL.
-Version: 0.4.5
+Version: 0.4.8
 Author: 510208
-Author URI: https://pgsoft.lionfree.net
+Author URI: https://samhacker.is-from.tw/
 Plugin URI: https://github.com/510208/safecheck-wp
+Tested up to: 6.5.2
 License: GNU General Public License v3
 */
 
